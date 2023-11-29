@@ -12,7 +12,7 @@ EditorBuildSettings:
     path: Assets/Scenes/Inventory.unity
     guid: d4d9ddcb55841f94cadbfae43091d3a8
   - enabled: 1
-    path: Assets/Scenes/NewTask.unity
+    path: Assets/Scenes/NewCategory.unity
     guid: 06ba54b876bcb7b41ac1f4d13fb366a9
   - enabled: 1
     path: Assets/Scenes/TaskList.unity
