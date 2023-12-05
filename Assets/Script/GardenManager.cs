@@ -2,25 +2,24 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using System.IO; // File operations
+using System.IO;
 
 public class GardenManager : MonoBehaviour
 {
     [System.Serializable]
     public class FlowerData
     {
-        public string name;
-        public int spriteIndex;
+        public int spriteIndex; // nameフィールドを削除
     }
 
     [System.Serializable]
     public class FlowerDatabase
     {
-        public FlowerData[] flowers;
+        public FlowerData[] flowers; // JSONファイルの構造に合わせる
     }
 
-    public GameObject flowerImagePrefab; // Assign your flower image prefab in the inspector
-    public Sprite[] flowerSprites; // Assign your flower sprites in the inspector
+    public GameObject flowerImagePrefab;
+    public Sprite[] flowerSprites;
     public Vector2 gridSize = new Vector2(3, 3);
     public float spacing = 300f;
     public float flowerScale = 4f;
@@ -28,17 +27,15 @@ public class GardenManager : MonoBehaviour
 
     private FlowerDatabase flowerDatabase;
 
-    // Start is called before the first frame update
     void Start()
     {
         LoadFlowerData();
         GenerateGrid();
     }
 
-    // Load flower data from JSON
     void LoadFlowerData()
     {
-        string filePath = Path.Combine(Application.streamingAssetsPath, "garden.json"); // Changed to garden.json
+        string filePath = Path.Combine(Application.streamingAssetsPath, "garden.json");
         if(File.Exists(filePath))
         {
             string dataAsJson = File.ReadAllText(filePath);
