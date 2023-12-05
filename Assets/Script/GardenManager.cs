@@ -9,6 +9,7 @@ public class GardenManager : MonoBehaviour
     [System.Serializable]
     public class FlowerData
     {
+        public int water;
         public int spriteIndex; 
     }
 
@@ -37,7 +38,7 @@ public class GardenManager : MonoBehaviour
 
     void InitializeFields()
     {
-        flowerImagePrefab = Resources.Load<GameObject>("Flower");
+        flowerImagePrefab = Resources.Load<GameObject>("Images/Garden/Flower");
 
         // Initialize the phaseSprites array
         int numberOfPhaseSprites = 3; // Replace with actual number of phase sprites
@@ -50,14 +51,14 @@ public class GardenManager : MonoBehaviour
         // Initialize the flowerSprites array
         int numberOfFlowerSprites = 8; // Replace with actual number of flower sprites
         flowerSprites = new Sprite[numberOfFlowerSprites];
-        flowerSprites[0] = Resources.Load<Sprite>($"Images/Garden/Black");
-        flowerSprites[1] = Resources.Load<Sprite>($"Images/Garden/Blue");
-        flowerSprites[2] = Resources.Load<Sprite>($"Images/Garden/Orange");
-        flowerSprites[3] = Resources.Load<Sprite>($"Images/Garden/Pink");
-        flowerSprites[4] = Resources.Load<Sprite>($"Images/Garden/Purple");
-        flowerSprites[5] = Resources.Load<Sprite>($"Images/Garden/Red");
-        flowerSprites[6] = Resources.Load<Sprite>($"Images/Garden/White");
-        flowerSprites[7] = Resources.Load<Sprite>($"Images/Garden/Yellow");
+        flowerSprites[0] = Resources.Load<Sprite>("Images/Garden/Black");
+        flowerSprites[1] = Resources.Load<Sprite>("Images/Garden/Blue");
+        flowerSprites[2] = Resources.Load<Sprite>("Images/Garden/Orange");
+        flowerSprites[3] = Resources.Load<Sprite>("Images/Garden/Pink");
+        flowerSprites[4] = Resources.Load<Sprite>("Images/Garden/Purple");
+        flowerSprites[5] = Resources.Load<Sprite>("Images/Garden/Red");
+        flowerSprites[6] = Resources.Load<Sprite>("Images/Garden/White");
+        flowerSprites[7] = Resources.Load<Sprite>("Images/Garden/Yellow");
 
         // for (int i = 0; i < numberOfFlowerSprites; i++)
         // {
@@ -92,7 +93,7 @@ public class GardenManager : MonoBehaviour
                 if (rt != null)
                 {
                     rt.anchoredPosition = new Vector2(x * spacing - (gridSize.x - 1) * spacing / 2, 
-                                                      -y * spacing + (gridSize.y - 1) * spacing / 2 - yOffset);
+                                                    -y * spacing + (gridSize.y - 1) * spacing / 2 - yOffset);
                     rt.localScale = new Vector3(flowerScale, flowerScale, flowerScale);
 
                     Image flowerImage = flower.GetComponent<Image>();
@@ -100,9 +101,32 @@ public class GardenManager : MonoBehaviour
                     if (flowerImage != null && index < flowerDatabase.flowers.Length)
                     {
                         int spriteIndex = flowerDatabase.flowers[index].spriteIndex;
-                        if(spriteIndex < flowerSprites.Length)
+                        int waterLevel = flowerDatabase.flowers[index].water;
+
+                        // Determine the sprite to display based on the water level
+                        if (waterLevel == 0)
                         {
-                            flowerImage.sprite = flowerSprites[spriteIndex];
+                            Destroy(flower); // Destroy the flower GameObject as nothing should be displayed
+                        }
+                        else if (waterLevel >= 1 && waterLevel <= 9)
+                        {
+                            flowerImage.sprite = phaseSprites[0];
+                        }
+                        else if (waterLevel >= 10 && waterLevel <= 19)
+                        {
+                            flowerImage.sprite = phaseSprites[1];
+                        }
+                        else if (waterLevel >= 20 && waterLevel <= 29)
+                        {
+                            flowerImage.sprite = phaseSprites[2];
+                        }
+                        else if (waterLevel >= 30)
+                        {
+                            // Check if spriteIndex is within the bounds of flowerSprites array
+                            if(spriteIndex < flowerSprites.Length)
+                            {
+                                flowerImage.sprite = flowerSprites[spriteIndex];
+                            }
                         }
                     }
                 }
@@ -113,4 +137,5 @@ public class GardenManager : MonoBehaviour
             }
         }
     }
+
 }
