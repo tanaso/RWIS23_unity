@@ -2,20 +2,82 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System.IO;
 
 public class GardenManager : MonoBehaviour
 {
-    public GameObject flowerImagePrefab; // UI Imageプレハブをアサインする
-    public Sprite[] flowerSprites; // 花のスプライトの配列
-    public Vector2 gridSize = new Vector2(3, 3); // グリッドのサイズ
-    public float spacing = 300f; // グリッド内のスペース
-    public float flowerScale = 4f; // Inspectorから調整可能なスケール
-    public float yOffset = 200f; // Inspectorから調整可能なYオフセット
+    [System.Serializable]
+    public class FlowerData
+    {
+        public int water;
+        public int spriteIndex; 
+    }
 
-    // Start is called before the first frame update
+    [System.Serializable]
+    public class FlowerDatabase
+    {
+        public FlowerData[] flowers;
+    }
+
+    private GameObject flowerImagePrefab;
+    private Sprite[] phaseSprites; // Array for phase sprites
+    private Sprite[] flowerSprites; // Array for flower sprites
+    private Vector2 gridSize = new Vector2(3, 3);
+    private float spacing = 300f;
+    private float flowerScale = 4f;
+    private float yOffset = 200f;
+
+    private FlowerDatabase flowerDatabase;
+
     void Start()
     {
+        InitializeFields();
+        LoadFlowerData();
         GenerateGrid();
+    }
+
+    void InitializeFields()
+    {
+        flowerImagePrefab = Resources.Load<GameObject>("Images/Garden/Flower");
+
+        // Initialize the phaseSprites array
+        int numberOfPhaseSprites = 3; // Replace with actual number of phase sprites
+        phaseSprites = new Sprite[numberOfPhaseSprites];
+        for (int i = 0; i < numberOfPhaseSprites; i++)
+        {
+            phaseSprites[i] = Resources.Load<Sprite>($"Images/Garden/phase_{i}"); // Replace with actual path and naming pattern
+        }
+
+        // Initialize the flowerSprites array
+        int numberOfFlowerSprites = 8; // Replace with actual number of flower sprites
+        flowerSprites = new Sprite[numberOfFlowerSprites];
+        flowerSprites[0] = Resources.Load<Sprite>("Images/Garden/Black");
+        flowerSprites[1] = Resources.Load<Sprite>("Images/Garden/Blue");
+        flowerSprites[2] = Resources.Load<Sprite>("Images/Garden/Orange");
+        flowerSprites[3] = Resources.Load<Sprite>("Images/Garden/Pink");
+        flowerSprites[4] = Resources.Load<Sprite>("Images/Garden/Purple");
+        flowerSprites[5] = Resources.Load<Sprite>("Images/Garden/Red");
+        flowerSprites[6] = Resources.Load<Sprite>("Images/Garden/White");
+        flowerSprites[7] = Resources.Load<Sprite>("Images/Garden/Yellow");
+
+        // for (int i = 0; i < numberOfFlowerSprites; i++)
+        // {
+        //     flowerSprites[i] = Resources.Load<Sprite>($"Images/Garden/flower{i}"); // Replace with actual path and naming pattern
+        // }
+    }
+
+    void LoadFlowerData()
+    {
+        string filePath = Path.Combine(Application.streamingAssetsPath, "garden.json");
+        if(File.Exists(filePath))
+        {
+            string dataAsJson = File.ReadAllText(filePath);
+            flowerDatabase = JsonUtility.FromJson<FlowerDatabase>(dataAsJson);
+        }
+        else
+        {
+            Debug.LogError("Cannot find file!");
+        }
     }
 
     void GenerateGrid()
@@ -31,16 +93,41 @@ public class GardenManager : MonoBehaviour
                 if (rt != null)
                 {
                     rt.anchoredPosition = new Vector2(x * spacing - (gridSize.x - 1) * spacing / 2, 
-                                                      -y * spacing + (gridSize.y - 1) * spacing / 2 - yOffset); // Apply the Y-offset here
-                    rt.localScale = new Vector3(flowerScale, flowerScale, flowerScale); // Apply the scale set in Inspector
+                                                    -y * spacing + (gridSize.y - 1) * spacing / 2 - yOffset);
+                    rt.localScale = new Vector3(flowerScale, flowerScale, flowerScale);
 
-                    // Change the sprite of the flower
                     Image flowerImage = flower.GetComponent<Image>();
-                    if (flowerImage != null && flowerSprites.Length > 0)
+                    int index = y * (int)gridSize.x + x;
+                    if (flowerImage != null && index < flowerDatabase.flowers.Length)
                     {
-                        // Select a sprite randomly or by some other logic
-                        Sprite newSprite = flowerSprites[Random.Range(0, flowerSprites.Length)];
-                        flowerImage.sprite = newSprite;
+                        int spriteIndex = flowerDatabase.flowers[index].spriteIndex;
+                        int waterLevel = flowerDatabase.flowers[index].water;
+
+                        // Determine the sprite to display based on the water level
+                        if (waterLevel == 0)
+                        {
+                            Destroy(flower); // Destroy the flower GameObject as nothing should be displayed
+                        }
+                        else if (waterLevel >= 1 && waterLevel <= 9)
+                        {
+                            flowerImage.sprite = phaseSprites[0];
+                        }
+                        else if (waterLevel >= 10 && waterLevel <= 19)
+                        {
+                            flowerImage.sprite = phaseSprites[1];
+                        }
+                        else if (waterLevel >= 20 && waterLevel <= 29)
+                        {
+                            flowerImage.sprite = phaseSprites[2];
+                        }
+                        else if (waterLevel >= 30)
+                        {
+                            // Check if spriteIndex is within the bounds of flowerSprites array
+                            if(spriteIndex < flowerSprites.Length)
+                            {
+                                flowerImage.sprite = flowerSprites[spriteIndex];
+                            }
+                        }
                     }
                 }
                 else
@@ -50,4 +137,5 @@ public class GardenManager : MonoBehaviour
             }
         }
     }
+
 }
