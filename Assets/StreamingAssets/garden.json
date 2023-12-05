@@ -1,12 +1,13 @@
-[
-        {"spriteIndex": 0 },
-        {"spriteIndex": 1 },
-        {"spriteIndex": 1 },
-        {"spriteIndex": 1 },
-        {"spriteIndex": 1 },
-        {"spriteIndex": 1 },
-        {"spriteIndex": 1 },
-        {"spriteIndex": 1 },
-        {"spriteIndex": 1 }
+{
+    "flowers": [
+        {"spriteIndex": 0},
+        {"spriteIndex": 1},
+        {"spriteIndex": 1},
+        {"spriteIndex": 1},
+        {"spriteIndex": 1},
+        {"spriteIndex": 1},
+        {"spriteIndex": 1},
+        {"spriteIndex": 1},
+        {"spriteIndex": 1}
     ]
-
+}

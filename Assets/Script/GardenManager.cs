@@ -9,28 +9,60 @@ public class GardenManager : MonoBehaviour
     [System.Serializable]
     public class FlowerData
     {
-        public int spriteIndex; // nameフィールドを削除
+        public int spriteIndex; 
     }
 
     [System.Serializable]
     public class FlowerDatabase
     {
-        public FlowerData[] flowers; // JSONファイルの構造に合わせる
+        public FlowerData[] flowers;
     }
 
-    public GameObject flowerImagePrefab;
-    public Sprite[] flowerSprites;
-    public Vector2 gridSize = new Vector2(3, 3);
-    public float spacing = 300f;
-    public float flowerScale = 4f;
-    public float yOffset = 200f;
+    private GameObject flowerImagePrefab;
+    private Sprite[] phaseSprites; // Array for phase sprites
+    private Sprite[] flowerSprites; // Array for flower sprites
+    private Vector2 gridSize = new Vector2(3, 3);
+    private float spacing = 300f;
+    private float flowerScale = 4f;
+    private float yOffset = 200f;
 
     private FlowerDatabase flowerDatabase;
 
     void Start()
     {
+        InitializeFields();
         LoadFlowerData();
         GenerateGrid();
+    }
+
+    void InitializeFields()
+    {
+        flowerImagePrefab = Resources.Load<GameObject>("Flower");
+
+        // Initialize the phaseSprites array
+        int numberOfPhaseSprites = 3; // Replace with actual number of phase sprites
+        phaseSprites = new Sprite[numberOfPhaseSprites];
+        for (int i = 0; i < numberOfPhaseSprites; i++)
+        {
+            phaseSprites[i] = Resources.Load<Sprite>($"Images/Garden/phase_{i}"); // Replace with actual path and naming pattern
+        }
+
+        // Initialize the flowerSprites array
+        int numberOfFlowerSprites = 8; // Replace with actual number of flower sprites
+        flowerSprites = new Sprite[numberOfFlowerSprites];
+        flowerSprites[0] = Resources.Load<Sprite>($"Images/Garden/Black");
+        flowerSprites[1] = Resources.Load<Sprite>($"Images/Garden/Blue");
+        flowerSprites[2] = Resources.Load<Sprite>($"Images/Garden/Orange");
+        flowerSprites[3] = Resources.Load<Sprite>($"Images/Garden/Pink");
+        flowerSprites[4] = Resources.Load<Sprite>($"Images/Garden/Purple");
+        flowerSprites[5] = Resources.Load<Sprite>($"Images/Garden/Red");
+        flowerSprites[6] = Resources.Load<Sprite>($"Images/Garden/White");
+        flowerSprites[7] = Resources.Load<Sprite>($"Images/Garden/Yellow");
+
+        // for (int i = 0; i < numberOfFlowerSprites; i++)
+        // {
+        //     flowerSprites[i] = Resources.Load<Sprite>($"Images/Garden/flower{i}"); // Replace with actual path and naming pattern
+        // }
     }
 
     void LoadFlowerData()
