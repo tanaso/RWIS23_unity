@@ -2,20 +2,52 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System.IO; // File operations
 
 public class GardenManager : MonoBehaviour
 {
-    public GameObject flowerImagePrefab; // UI Imageプレハブをアサインする
-    public Sprite[] flowerSprites; // 花のスプライトの配列
-    public Vector2 gridSize = new Vector2(3, 3); // グリッドのサイズ
-    public float spacing = 300f; // グリッド内のスペース
-    public float flowerScale = 4f; // Inspectorから調整可能なスケール
-    public float yOffset = 200f; // Inspectorから調整可能なYオフセット
+    [System.Serializable]
+    public class FlowerData
+    {
+        public string name;
+        public int spriteIndex;
+    }
+
+    [System.Serializable]
+    public class FlowerDatabase
+    {
+        public FlowerData[] flowers;
+    }
+
+    public GameObject flowerImagePrefab; // Assign your flower image prefab in the inspector
+    public Sprite[] flowerSprites; // Assign your flower sprites in the inspector
+    public Vector2 gridSize = new Vector2(3, 3);
+    public float spacing = 300f;
+    public float flowerScale = 4f;
+    public float yOffset = 200f;
+
+    private FlowerDatabase flowerDatabase;
 
     // Start is called before the first frame update
     void Start()
     {
+        LoadFlowerData();
         GenerateGrid();
+    }
+
+    // Load flower data from JSON
+    void LoadFlowerData()
+    {
+        string filePath = Path.Combine(Application.streamingAssetsPath, "garden.json"); // Changed to garden.json
+        if(File.Exists(filePath))
+        {
+            string dataAsJson = File.ReadAllText(filePath);
+            flowerDatabase = JsonUtility.FromJson<FlowerDatabase>(dataAsJson);
+        }
+        else
+        {
+            Debug.LogError("Cannot find file!");
+        }
     }
 
     void GenerateGrid()
@@ -31,16 +63,18 @@ public class GardenManager : MonoBehaviour
                 if (rt != null)
                 {
                     rt.anchoredPosition = new Vector2(x * spacing - (gridSize.x - 1) * spacing / 2, 
-                                                      -y * spacing + (gridSize.y - 1) * spacing / 2 - yOffset); // Apply the Y-offset here
-                    rt.localScale = new Vector3(flowerScale, flowerScale, flowerScale); // Apply the scale set in Inspector
+                                                      -y * spacing + (gridSize.y - 1) * spacing / 2 - yOffset);
+                    rt.localScale = new Vector3(flowerScale, flowerScale, flowerScale);
 
-                    // Change the sprite of the flower
                     Image flowerImage = flower.GetComponent<Image>();
-                    if (flowerImage != null && flowerSprites.Length > 0)
+                    int index = y * (int)gridSize.x + x;
+                    if (flowerImage != null && index < flowerDatabase.flowers.Length)
                     {
-                        // Select a sprite randomly or by some other logic
-                        Sprite newSprite = flowerSprites[Random.Range(0, flowerSprites.Length)];
-                        flowerImage.sprite = newSprite;
+                        int spriteIndex = flowerDatabase.flowers[index].spriteIndex;
+                        if(spriteIndex < flowerSprites.Length)
+                        {
+                            flowerImage.sprite = flowerSprites[spriteIndex];
+                        }
                     }
                 }
                 else
